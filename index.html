@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dementia Matching Game</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    padding:20px;
+    text-align:center;
+}
+
+h1{
+    color:#2c3e50;
+}
+
+.instructions{
+    max-width:900px;
+    margin:auto;
+    margin-bottom:20px;
+}
+
+.container{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.cards{
+    width:40%;
+    min-width:300px;
+}
+
+.card{
+    background:white;
+    border:2px solid #3498db;
+    padding:10px;
+    margin:8px;
+    border-radius:8px;
+    cursor:grab;
+}
+
+.
+-card img{
+    width:100%;
+    max-width:250px;
+    border-radius:6px;
+}
+
+.image-card{
+    padding:5px;
+}
+
+.card-label{
+    font-size:14px;
+    margin-top:5px;
+    font-weight:bold;
+}
+
+.targets{
+    width:50%;
+    min-width:350px;
+}
+
+.target{
+    background:white;
+    border:3px dashed #7f8c8d;
+    border-radius:10px;
+    min-height:120px;
+    margin-bottom:15px;
+    padding:10px;
+}
+
+.target h3{
+    margin-top:0;
+}
+
+button{
+    margin-top:20px;
+    padding:10px 20px;
+    font-size:16px;
+}
+
+#score{
+    font-size:20px;
+    margin-top:15px;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<h1>Dementia Matching Challenge</h1>
+
+<div class="instructions">
+    Drag each description into the dementia type it best matches.
+    Each dementia should receive 4 cards:
+    <ul style="text-align:left; display:inline-block;">
+        <li>Typical onset/progression</li>
+        <li>Commonly affected cognitive domains</li>
+        <li>Neuropathology</li>
+    </ul>
+</div>
+
+<div class="container">
+
+    <div class="cards" id="cards">
+
+        <div class="card image-card" draggable="true" data-answer="alz">
+            <img src="images/alz.jpg">
+            <div class="card-label"></div>
+        </div>
+
+        <div class="card image-card" draggable="true" data-answer="vascular">
+            <img src="images/vascular.jpg">
+            <div class="card-label"></div>
+        </div>
+
+        <div class="card image-card" draggable="true" data-answer="ftd">
+            <img src="images/FTD.jpeg">
+            <div class="card-label"></div>
+        </div>
+
+        <div class="card image-card" draggable="true" data-answer="lbd">
+            <img src="images/lewy.jpg">
+            <div class="card-label"></div>
+        </div>
+
+
+        <div class="card" draggable="true" data-answer="alz">
+            Gradual, insidious onset with progressive decline over years
+        </div>
+
+        <div class="card" draggable="true" data-answer="alz">
+            Early episodic memory impairment; later language and visuospatial deficits
+        </div>
+
+        <div class="card" draggable="true" data-answer="alz">
+            Beta-amyloid plaques and tau neurofibrillary tangles
+        </div>
+
+        <div class="card" draggable="true" data-answer="vascular">
+            Stepwise decline after cerebrovascular injury
+        </div>
+
+        <div class="card" draggable="true" data-answer="vascular">
+            Executive dysfunction, processing speed, attention
+        </div>
+
+        <div class="card" draggable="true" data-answer="vascular">
+            Ischemic infarcts, small vessel disease, white matter injury
+        </div>
+
+        <div class="card" draggable="true" data-answer="ftd">
+            Earlier onset (often age 45–65) with behavior or language changes
+        </div>
+
+        <div class="card" draggable="true" data-answer="ftd">
+            Executive dysfunction, behavior, personality, language
+        </div>
+
+        <div class="card" draggable="true" data-answer="ftd">
+            Frontal and temporal lobe degeneration; tau or TDP-43 pathology
+        </div>
+
+        <div class="card" draggable="true" data-answer="lbd">
+            Fluctuating cognition with parkinsonism and visual hallucinations
+        </div>
+
+        <div class="card" draggable="true" data-answer="lbd">
+            Attention, executive function, visuospatial abilities
+        </div>
+
+        <div class="card" draggable="true" data-answer="lbd">
+            Alpha-synuclein bodies in cortex and brainstem
+        </div>
+
+    </div>
+
+    <div class="targets">
+
+        <div class="target" data-name="alz">
+            <h3>Alzheimer Disease</h3>
+        </div>
+
+        <div class="target" data-name="vascular">
+            <h3>Vascular Dementia</h3>
+        </div>
+
+        <div class="target" data-name="ftd">
+            <h3>Frontotemporal Dementia (FTD)</h3>
+        </div>
+
+        <div class="target" data-name="lbd">
+            <h3>Lewy Body Dementia</h3>
+        </div>
+
+    </div>
+
+</div>
+
+<button onclick="checkAnswers()">Check Answers</button>
+
+<div id="score"></div>
+
+<script>
+let draggedItem = null;
+
+/* ---------------------------
+   Mouse Dragging
+---------------------------- */
+document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('dragstart', () => {
+        draggedItem = card;
+    });
+});
+
+/* ---------------------------
+   Touch Dragging
+---------------------------- */
+document.querySelectorAll('.card').forEach(card => {
+
+    card.addEventListener('touchstart', e => {
+        draggedItem = card;
+        card.style.opacity = "0.6";
+    });
+
+    card.addEventListener('touchend', e => {
+        card.style.opacity = "1";
+
+        const touch = e.changedTouches[0];
+        const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (dropTarget && dropTarget.classList.contains('target')) {
+            dropTarget.appendChild(card);
+        }
+    });
+
+});
+
+/* ---------------------------
+   Drop Zones (Mouse + Touch)
+---------------------------- */
+document.querySelectorAll('.target').forEach(target => {
+
+    // Mouse
+    target.addEventListener('dragover', e => {
+        e.preventDefault();
+    });
+
+    target.addEventListener('drop', e => {
+        e.preventDefault();
+        if (draggedItem) {
+            target.appendChild(draggedItem);
+        }
+    });
+
+    // Touch
+    target.addEventListener('touchmove', e => {
+        e.preventDefault();
+    });
+
+});
+
+/* ---------------------------
+   Check Answers
+---------------------------- */
+function checkAnswers() {
+
+    let correct = 0;
+    let total = 16;
+
+    document.querySelectorAll('.target').forEach(target => {
+
+        let answer = target.dataset.name;
+
+        target.querySelectorAll('.card').forEach(card => {
+
+            if (card.dataset.answer === answer) {
+                card.style.backgroundColor = "#c8e6c9";
+                correct++;
+            } else {
+                card.style.backgroundColor = "#ffcdd2";
+            }
+
+        });
+
+    });
+
+    document.getElementById("score").innerHTML =
+        `Score: ${correct} / ${total}`;
+
+    if (correct === total) {
+        document.getElementById("score").innerHTML +=
+            "<br>🎉 Perfect! Excellent work!";
+    }
+}
+
+/* ---------------------------
+   Shuffle Cards
+---------------------------- */
+function shuffleCards() {
+    const container = document.getElementById('cards');
+    const cards = Array.from(container.children);
+
+    for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+
+    cards.forEach(card => container.appendChild(card));
+}
+
+shuffleCards();
+</script>
+
+</body>
+</html>
